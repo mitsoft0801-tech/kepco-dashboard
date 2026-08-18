@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -10,12 +11,23 @@ st.set_page_config(
 )
 
 
-# 2. 데이터 로드 함수 (캐싱 적용)
+# 2. 데이터 로드 함수 (캐싱 적용 및 상대 경로 자동 탐색)
 @st.cache_data
 def load_data():
-    base_dir = r"D:\KEPCO"
-    df_main = pd.read_csv(f"{base_dir}/김천_한전기술_통합도서_분석데이터.csv")
-    df_mag = pd.read_csv(f"{base_dir}/김천시립_정기간행물_분석데이터.csv")
+    # app.py가 위치한 폴더 경로 자동 취득
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 1) app.py와 같은 폴더에 파일이 있는 경우
+    file_main = os.path.join(current_dir, "김천_한전기술_통합도서_분석데이터.csv")
+    file_mag = os.path.join(current_dir, "김천시립_정기간행물_분석데이터.csv")
+
+    # 2) 만약 data 폴더 안에 넣은 경우를 대비한 예외 처리
+    if not os.path.exists(file_main):
+        file_main = os.path.join(current_dir, "data", "김천_한전기술_통합도서_분석데이터.csv")
+        file_mag = os.path.join(current_dir, "data", "김천시립_정기간행물_분석데이터.csv")
+
+    df_main = pd.read_csv(file_main)
+    df_mag = pd.read_csv(file_mag)
     return df_main, df_mag
 
 
